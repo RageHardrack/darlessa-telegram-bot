@@ -1,0 +1,54 @@
+if (messageDictionary[message.chat.id] === undefined) {
+			messageDictionary[message.chat.id] = {
+				status: STATUS.NEXT_NAME,
+				value: {},
+			};
+
+			bot.sendMessage(message.chat.id, "Hola. ¿Cuál es tu nombre?");
+		} else if (messageDictionary[message.chat.id].status === STATUS.NEXT_NAME) {
+			messageDictionary[message.chat.id] = {
+				status: STATUS.NEXT_EMAIL,
+				value: {
+					...messageDictionary[message.chat.id].value,
+					name: message.text,
+				},
+			};
+
+			bot.sendMessage(
+				message.chat.id,
+				`Excelente ${message.text}! Ahora, dame tu email`
+			);
+		} else if (
+			messageDictionary[message.chat.id].status === STATUS.NEXT_EMAIL
+		) {
+			messageDictionary[message.chat.id] = {
+				status: STATUS.NEXT_FAV_LANG,
+				value: {
+					...messageDictionary[message.chat.id].value,
+					email: message.text,
+				},
+			};
+
+			bot.sendMessage(
+				message.chat.id,
+				"Por último: ¿cuál es tu lenguaje de programación favorito?"
+			);
+		} else if (
+			messageDictionary[message.chat.id].status === STATUS.NEXT_FAV_LANG
+		) {
+			messageDictionary[message.chat.id] = {
+				status: STATUS.NEXT_FAV_LANG,
+				value: {
+					...messageDictionary[message.chat.id].value,
+					fav_lang: message.text,
+				},
+			};
+
+			const { name, email, fav_lang } = messageDictionary[
+				message.chat.id
+			].value;
+			const user = new User(name!, email!, fav_lang!);
+			delete messageDictionary[message.chat.id];
+
+			bot.sendMessage(message.chat.id, user.createSubscription());
+		}
